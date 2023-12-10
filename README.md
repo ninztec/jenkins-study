@@ -140,3 +140,74 @@ After enabling the Apache configuration and restarting the Apache service, you w
 Step 7. Finish Installation
 
 To finish the installation, access your Jenkins installation at http://yourdomain.com
+----------------------------------------------------------------------------------------------
+
+Sonarcube server production ready 
+
+Absolutely! Here's a sample docker-compose.yml file for setting up SonarQube with an external database (PostgreSQL) suitable for a production environment:
+
+yaml
+
+version: '3.8'
+
+services:
+  sonarqube:
+    image: sonarqube:latest
+    ports:
+      - "9000:9000"
+    environment:
+      - SONAR_JDBC_URL=jdbc:postgresql://sonarqube-db:5432/sonar
+      - SONAR_JDBC_USERNAME=sonar
+      - SONAR_JDBC_PASSWORD=sonar
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_logs:/opt/sonarqube/logs
+      - sonarqube_extensions:/opt/sonarqube/extensions
+    networks:
+      - sonarqube-net
+
+  sonarqube-db:
+    image: postgres:12-alpine
+    environment:
+      - POSTGRES_USER=sonar
+      - POSTGRES_PASSWORD=sonar
+      - POSTGRES_DB=sonar
+    volumes:
+      - sonarqube_db:/var/lib/postgresql/data
+    networks:
+      - sonarqube-net
+
+networks:
+  sonarqube-net:
+
+volumes:
+  sonarqube_data:
+  sonarqube_logs:
+  sonarqube_extensions:
+  sonarqube_db:
+
+Explanation:
+
+    sonarqube service: Runs SonarQube with necessary configurations.
+        Exposes SonarQube on port 9000.
+        Defines environment variables for PostgreSQL database connection.
+        Mounts volumes for SonarQube data, logs, and extensions.
+    sonarqube-db service: Runs PostgreSQL for SonarQube.
+        Defines environment variables for the PostgreSQL database.
+        Mounts a volume for PostgreSQL data.
+    Networks: Connects both services to a shared network (sonarqube-net).
+    Volumes: Defines named volumes for persistent data storage.
+
+Usage:
+
+    Save this content in a file named docker-compose.yml.
+    Run docker-compose up -d in the directory where the file is located to start the services.
+
+Important Considerations:
+
+    Update the image versions (sonarqube:latest and postgres:12-alpine) as needed.
+    Modify the PostgreSQL version or other configurations according to your requirements.
+    Ensure security by using strong passwords and considering SSL for production deployments.
+    Always backup volumes (sonarqube_data, sonarqube_logs, sonarqube_db) to prevent data loss.
+
+This docker-compose.yml sets up SonarQube with an external PostgreSQL database, providing a scalable and persistent setup suitable for a production environment. Adjust configurations based on specific needs and security requirements.
